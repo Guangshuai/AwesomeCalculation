@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block main-card-content %}
+    <h2>Upload</h2>
+    <div class="form-group">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="document">
+       <button type="submit">Upload file</button>
+      </form>
+    </div>
+    {% if url %}
+      <div class="container" >
+        <p>Uploaded file: <a href="{{ url }}">{{ url }}</a></p>
+      </div>
+   {% endif %}
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block main-card-content %}
+    <p>Choose data file:</p>
+    <div class="form-group">
+      <form method="post" enctype="multipart/form-data" data-ajax="false">
+        {% csrf_token %}
+        <div class="form-group custom-file mb-3">
+          <input type="file" class="custom-file-input" id="customFile" name="lr_data_file">
+          <label class="custom-file-label" for="customFile">Choose awesome file</label>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Upload awesome file</button>
+        </div>
+      </form>
+    </div>
+    <script>
+      $(".custom-file-input").on("change", function() {
+        var fileName = $(this).val().split("\\").pop();
+        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+      });
+    </script>
+{% endblock %}
+
+{% block other-content %}
+  {% if url %}
+    <div class="row justify-content-center">
+      <div class="col-lg-10 col-md-12">
+          <div class="card mb-4">
+            <div class="card-body" style="background-color: azure">
+              <form method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                  <p>Uploaded awesome file: <a href="{{ url }}" target="_blank">{{ name }}</a></p>
+                </div>
+                <input type="hidden" value="{{ name }}" id="fileName">
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label for="xDataMenu">Select column for X</label>
+                    <select id="xDataMenu" class="form-control">
+                      {% for x in x_data %}
+                        <option>{{ x }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="yDataMenu">Column Y</label>
+                    <select id="yDataMenu" class="form-control">
+                      {% for y in y_data %}
+                        <option>{{ y }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="weightDataMenu">Column Weight</label>
+                    <select id="weightDataMenu" class="form-control">
+                      {% for w in weight %}
+                        <option>{{ w }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="button" class="btn btn-dark" id="calculate">Run Awesome Linear Regression</button>
+                </div>
+                <script>
+                  $("#calculate").on("click", function() {
+                      var x_data = $("#xDataMenu option:selected").index();
+                      var y_data = $("#yDataMenu option:selected").index();
+                      var weight = $("#weightDataMenu option:selected").index();
+                      var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+                      var file_name = $('#fileName').val();
+
+                      $.ajax({
+                        url: '{% url 'lr_calculate' %}',
+                        type: 'POST',
+                        headers:{
+                            "X-CSRFToken": csrftoken
+                        },
+                        data: {
+                            file_name: file_name,
+                            x_data: x_data,
+                            y_data: y_data,
+                            theta: weight
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                          console.log(data)
+                        }
+                      });
+
+                  });
+
+
+                </script>
+              </form>
+            </div>
+          </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block bodyScript %}
+
+{% endblock %}
